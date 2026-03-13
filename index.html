@@ -949,46 +949,49 @@ function rSkin(){
 
   var skinProtocol=[
     {
-      title:"MILD SKIN REDNESS / ITCH",
+      title:"MILD FLARE — FORESKIN",
       col:"var(--amber)",
       steps:[
-        {rx:"Dosetil Cream (Desonide 0.05%)",how:"Apply once daily to the inflamed patch. Safe for face and sensitive areas. Max 2 weeks continuously on same spot."},
+        {rx:"Dosetil Cream (Desonide 0.05%)",how:"Apply on foreskin every morning. Desonide is the mildest steroid — specifically safe for sensitive/genital skin. Duration: 2 weeks."},
       ]
     },
     {
-      title:"MODERATE BODY FLARE",
+      title:"MODERATE FLARE — HANDS / LEGS",
       col:"var(--red)",
       steps:[
-        {rx:"Momate Cream (Mometasone 0.1%)",how:"Apply once daily to body only — not face. Max 2–3 weeks continuously. Then step down."},
-        {rx:"→ After 1 week: switch to Tacroz Forte",how:"Step down from steroid to Tacroz to maintain and prevent rebound."},
+        {rx:"Momate Cream (Mometasone 0.1%)",how:"Apply on hands and legs every morning for active flare-ups. Medium-strength steroid — effective on body skin. Duration: 2 weeks."},
       ]
     },
     {
-      title:"MAINTENANCE + FACE (DAILY)",
+      title:"MAINTENANCE — EVENINGS (ALL AREAS)",
       col:"var(--lime)",
       steps:[
-        {rx:"Tacroz Forte Ointment (Tacrolimus 0.1%)",how:"Not a steroid — calms the immune attack directly. Safe for face long-term. Apply to patches after steroid phase, or use as ongoing maintenance. This is in every single prescription — your doctor's most trusted tool."},
+        {rx:"Tacroz Forte Ointment (Tacrolimus 0.1%)",how:"Apply every evening after bath — pat skin dry, then thin layer on affected patches. Not a steroid — calms the immune attack directly without thinning the skin. Safe for long-term use including sensitive areas. Duration: 2 weeks alongside the morning creams, then continue as maintenance."},
       ]
     },
     {
-      title:"ACTIVE SCALP FLARE",
+      title:"ACTIVE SCALP FLARE / INFECTION",
       col:"var(--blue)",
       steps:[
-        {rx:"Sebowash Shampoo (Fluocinolone 0.1%)",how:"Apply, leave 5 minutes, rinse. Twice a week only — not daily."},
-        {rx:"After washing: Tacroz Forte on patches",how:"Apply directly to affected scalp areas. Critical — scalp LP causes permanent scarring hair loss if inflammation isn't stopped between flares."},
+        {rx:"Scalpe Plus Shampoo",how:"Medicated shampoo for active scalp infection and inflammation. Apply to wet scalp, leave for 5–10 minutes, then rinse. Use as directed by Dr Naresh during flares."},
       ]
     },
     {
       title:"DAILY SCALP MAINTENANCE",
       col:"var(--muted)",
       steps:[
-        {rx:"Procalp Shampoo",how:"Hair loss prevention specifically for LP. Use 2–3×/week as base shampoo."},
-        {rx:"Bioderma Node Shampoo",how:"Use on non-flare days. Keeps scalp clean and sebaceous balance correct."},
+        {rx:"Procalp Shampoo",how:"Your regular everyday shampoo. Use every wash. Specifically prescribed for scalp LP — prevents hair loss and maintains scalp health between flares."},
       ]
     },
     {
-      title:"EVERY SINGLE MORNING — NON-NEGOTIABLE",
-      col:"var(--lime)",
+      title:"DARK MARKS AFTER FLARE (POST-INFLAMMATORY HYPERPIGMENTATION)",
+      col:"var(--blue)",
+      steps:[
+        {rx:"Truderma Vitamin C Serum 20ml",how:"Apply every morning to the marks — before sunscreen. Directly inhibits melanin production. With consistent use, PIH fades 60–70% in 3–4 months. Already in your Sep 2023 prescription."},
+        {rx:"Lashield SPF 40 — immediately after",how:"Non-negotiable. UV darkens PIH significantly — every time you step out without SPF, the marks get set deeper. Apply on top of Vitamin C, every single morning."},
+        {rx:"Do NOT scrub or exfoliate",how:"LP skin is still immunologically sensitive. Aggressive scrubbing risks triggering a new flare at the same spots and making marks worse."},
+      ]
+    },
       steps:[
         {rx:"Lashield SPF 40 (or Faceguard Gel)",how:"LP-affected skin is hypersensitive to UV and hyperpigments badly without protection. In every prescription from Sep 2023 onward — your doctor insisted on this. Apply before stepping out."},
       ]
@@ -1011,13 +1014,12 @@ function rSkin(){
   html+='<div class="stitle" style="margin-top:4px">QUICK REFERENCE</div>';
   html+='<div class="card" style="padding:0;overflow:hidden">';
   var qr=[
-    {s:"Mild redness / itch",rx:"Dosetil Cream",c:"var(--amber)"},
-    {s:"Moderate body flare",rx:"Momate Cream (1 week max)",c:"var(--red)"},
-    {s:"After steroid / face / maintenance",rx:"Tacroz Forte",c:"var(--lime)"},
-    {s:"Active scalp itch / scaling",rx:"Sebowash 2× per week",c:"var(--blue)"},
-    {s:"Scalp LP maintenance",rx:"Tacroz on patches",c:"var(--blue)"},
-    {s:"Daily scalp care",rx:"Procalp + Bioderma Node",c:"var(--muted)"},
-    {s:"Every single morning",rx:"Lashield SPF 40",c:"var(--lime)"},
+    {s:"Foreskin flare — morning",rx:"Dosetil Cream",c:"var(--amber)"},
+    {s:"Hands / legs flare — morning",rx:"Momate Cream",c:"var(--red)"},
+    {s:"All areas — evening after bath",rx:"Tacroz Forte",c:"var(--lime)"},
+    {s:"Active scalp flare / infection",rx:"Scalpe Plus Shampoo",c:"var(--blue)"},
+    {s:"Daily scalp — every wash",rx:"Procalp Shampoo",c:"var(--muted)"},
+    {s:"Dark marks after flare (PIH)",rx:"Vit C Serum → SPF 40",c:"var(--blue)"},
   ];
   qr.forEach(function(r,i){
     html+='<div style="display:flex;align-items:center;gap:10px;padding:12px 18px;'+(i>0?"border-top:1px solid var(--border)":"")+'">';
@@ -1030,7 +1032,7 @@ function rSkin(){
   // Thyroid-skin connection reminder
   html+='<div class="ibox" style="margin-top:4px">';
   html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--green);letter-spacing:2px;margin-bottom:8px">THE MOST IMPORTANT SKIN TREATMENT</div>';
-  html+='<div style="font-size:13px;color:#ddd;line-height:1.7">Getting your TSH to <b style="color:var(--lime)">1.0–2.5 and keeping it there</b> is more powerful than any cream. Every cream manages the symptom. Thyroid optimization removes the cause. Hard 75 + correct Thyronorm timing at 6 AM = your best dermatology appointment.</div>';
+  html+='<div style="font-size:13px;color:#ddd;line-height:1.7">Getting your TSH to <b style="color:var(--lime)">1.0–2.5 and keeping it there</b> is more powerful than any cream. Every cream manages the symptom. Thyroid optimization removes the cause.<br/><br/>The marks on your forearms are post-inflammatory hyperpigmentation — the immune attack leaves excess melanin behind as it heals. They\'ll keep coming back as long as flares keep happening. Vitamin C + SPF fades the current ones, but preventing new flares is the only permanent fix. That comes from the thyroid.</div>';
   html+='</div>';
 
   el.innerHTML=html;
