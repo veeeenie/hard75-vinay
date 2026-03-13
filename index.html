@@ -46,8 +46,8 @@ input[type=file]{display:none}
 
 /* BOTTOM TABBAR */
 #tabbar{display:flex;position:fixed;bottom:calc(14px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:rgba(14,16,20,0.94);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border:1px solid var(--border2);border-radius:100px;padding:5px;gap:3px;z-index:100;box-shadow:0 8px 40px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.03);width:calc(100% - 28px);max-width:480px}
-.tab{flex:1;padding:9px 2px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.3px;border:none;background:transparent;color:var(--muted);text-transform:uppercase;border-radius:100px;white-space:nowrap;transition:all 0.22s cubic-bezier(0.34,1.2,0.64,1)}
-.tab.on{color:#000;background:var(--lime);font-weight:700;letter-spacing:0.5px}
+.tab{flex:1;padding:9px 1px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.2px;border:none;background:transparent;color:var(--muted);text-transform:uppercase;border-radius:100px;white-space:nowrap;transition:all 0.22s cubic-bezier(0.34,1.2,0.64,1)}
+.tab.on{color:#000;background:var(--lime);font-weight:700;letter-spacing:0.3px}
 
 /* CONTENT */
 #content{padding:16px 20px}
@@ -257,6 +257,8 @@ canvas{display:block}
       <div class="card" id="targets"></div>
       <div id="extra-insights"></div>
     </div>
+    <div id="s-supps" class="sec"></div>
+    <div id="s-skin" class="sec"></div>
     <div id="s-bloodwork" class="sec">
       <div class="stitle">BLOODWORK COMPARISON</div>
       <div class="ibox">
@@ -273,9 +275,11 @@ canvas{display:block}
 <div id="tabbar">
   <button class="tab on" data-t="today">Today</button>
   <button class="tab" data-t="tracker">Days</button>
-  <button class="tab" data-t="analysis">Analysis</button>
-  <button class="tab" data-t="protocol">Protocol</button>
-  <button class="tab" data-t="bloodwork">Labs</button>
+  <button class="tab" data-t="analysis">Blood</button>
+  <button class="tab" data-t="skin">Skin</button>
+  <button class="tab" data-t="supps">Supps</button>
+  <button class="tab" data-t="protocol">Plan</button>
+  <button class="tab" data-t="bloodwork">Results</button>
 </div>
 <div id="lightbox" onclick="closeLB()">
   <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#f0efeb;letter-spacing:-0.5px;margin-bottom:12px" id="lb-day">DAY 1</div>
@@ -577,6 +581,461 @@ function gotoTab(t){switchTab(t)}
 function openLB(day,src){document.getElementById("lb-day").textContent="DAY "+day;document.getElementById("lb-img").src=src;document.getElementById("lightbox").classList.add("op")}
 function closeLB(){document.getElementById("lightbox").classList.remove("op")}
 
+var SUPPDETAIL=[
+  {
+    id:"thyronorm",
+    icon:"💊",
+    name:"Thyronorm 75mcg",
+    tag:"PRESCRIPTION ONLY",
+    tagcol:"var(--lime)",
+    rx:"Thyronorm 75mcg — Abbott India. Cannot be purchased without prescription.",
+    price:null,
+    howSection:[
+      {t:"Timing",v:"6:00 AM — first thing on waking. Before brushing teeth."},
+      {t:"Dose",v:"1 tablet daily. Never skip, never double."},
+      {t:"Rule #1",v:"Nothing for 45 minutes after. Not water, not coffee, not anything."},
+      {t:"Rule #2",v:"Calcium, iron, antacids, and dairy all block absorption — keep 4 hours gap."},
+    ],
+    whenStop:"Never on your own. This is lifelong unless your endocrinologist tapers you off after sustained TSH normalization (TSH stable at 1–2.5 for 6+ months). Do not self-discontinue even if you feel fine.",
+    stopCol:"var(--red)",
+    effects:[
+      {s:"Palpitations / racing heart",c:"var(--red)",d:"Too much hormone. Tell your doctor immediately."},
+      {s:"Trembling hands or anxiety",c:"var(--red)",d:"Overdose sign. Do not skip dose but call doctor."},
+      {s:"Excessive sweating / feeling hot",c:"var(--amber)",d:"Overdose. Lower dose needed — see endocrinologist."},
+      {s:"Insomnia or restlessness",c:"var(--amber)",d:"Overdose. Usually settles, but report if persistent."},
+      {s:"Unexplained weight loss",c:"var(--red)",d:"Overdose. Seek review."},
+      {s:"Still cold, fatigued, brain-fogged",c:"var(--blue)",d:"Underdose or absorption issue. Fix timing first, then report."},
+    ],
+    note:"Your TSH went from perfect 1.41 → 3.94 in 3 months — almost certainly because food or coffee was taken too close to the dose. The medicine is right. The timing was wrong."
+  },
+  {
+    id:"vitd",
+    icon:"☀️",
+    name:"Vitamin D3 + K2",
+    tag:"OTC — ORDER NOW",
+    tagcol:"var(--amber)",
+    rx:"D3: Calcirol 60,000 IU sachets (Cadila) — any pharmacy, ~₹30/sachet\nK2: MenaQ7 by Zenith Nutrition, MK-7 100mcg — Amazon India, ~₹600–800 / 60 caps",
+    price:"~₹650–850 / month",
+    howSection:[
+      {t:"D3 dose",v:"1 sachet (60,000 IU) once every week. Mix in small glass of milk or water."},
+      {t:"D3 timing",v:"Take with your heaviest meal of the day — fat boosts absorption."},
+      {t:"K2 dose",v:"1 MenaQ7 cap (100mcg) every day, with food."},
+      {t:"Critical rule",v:"Never take D3 without K2. K2 directs calcium into bones, away from arteries."},
+    ],
+    whenStop:"Retest Vitamin D at Day 80–85. Your Feb level: 22.4 ng/mL (deficient). Target: >35 ng/mL. Once you cross 60 ng/mL, drop to 1 sachet every 2 weeks (maintenance). Never fully stop K2 as long as you take D3.",
+    stopCol:"var(--amber)",
+    effects:[
+      {s:"Nausea / vomiting",c:"var(--red)",d:"Toxicity sign — only if taking multiple sachets/week. At 1/week you're safe."},
+      {s:"Excessive thirst or frequent urination",c:"var(--red)",d:"Hypercalcemia. Stop and test D levels immediately."},
+      {s:"Fatigue or confusion",c:"var(--amber)",d:"High D toxicity. Rare at your dose but stop and test."},
+      {s:"Kidney pain or dark urine",c:"var(--red)",d:"Stop immediately. Go to doctor."},
+    ],
+    note:"Your D crashed from 41 (Nov 2 DrLal) to 22.4 (Feb) in 3 months — possibly because you stopped the supplement. One sachet weekly is safe and effective at your baseline."
+  },
+  {
+    id:"b12",
+    icon:"🔴",
+    name:"Methylcobalamin B12",
+    tag:"OTC — ORDER NOW",
+    tagcol:"var(--amber)",
+    rx:"Mecobalamin 500mcg (Sun Pharma) — any pharmacy, ~₹80–100 / 10 tabs\nAlso: Nervup OD, Methycobal — same molecule",
+    price:"~₹250–300 / month",
+    howSection:[
+      {t:"Dose",v:"1 tablet (500mcg) daily."},
+      {t:"Timing",v:"11 AM — with your break-fast meal. Not on empty stomach."},
+      {t:"Pro tip",v:"Sublingual (dissolve under tongue) tablets absorb better if you can find them."},
+    ],
+    whenStop:"Your Feb B12: 219 pg/mL (low-normal). Target: >400 pg/mL. Retest at Day 80–85. Once above 400, you can drop to every alternate day — but as a vegetarian, B12 supplementation should be lifelong. You have zero dietary source.",
+    stopCol:"var(--blue)",
+    effects:[
+      {s:"Acne-like breakout on face/back",c:"var(--amber)",d:"Uncommon but real with methylcobalamin form. Switch to cyanocobalamin if this happens."},
+      {s:"Mild headache in first week",c:"var(--amber)",d:"Usually self-resolving. Take with food."},
+      {s:"Pink/dark urine",c:"var(--amber)",d:"Normal — excess B12 is excreted. Not harmful."},
+    ],
+    note:"B12 is water-soluble. Excess is excreted in urine — it is practically non-toxic at 500mcg. No upper safety limit concerns at this dose."
+  },
+  {
+    id:"omega3",
+    icon:"🐟",
+    name:"Veg Omega-3",
+    tag:"OTC — ORDER NOW",
+    tagcol:"var(--amber)",
+    rx:"Best: Zenith Nutrition Algae DHA 200mg — Amazon India, ~₹900–1200 / 60 caps\nBudget: Himalaya Flaxseed Oil 1000mg — ~₹300–400 / 60 softgels",
+    price:"~₹900–1200 / month (algae) or ~₹300 (flaxseed)",
+    howSection:[
+      {t:"Dose",v:"2 capsules daily."},
+      {t:"Timing",v:"1:30 PM — with your lunch meal."},
+      {t:"Why algae > flaxseed",v:"Your body converts flaxseed ALA to DHA at only 5–10% efficiency. Algae DHA is the end product directly."},
+      {t:"Storage",v:"Refrigerate after opening — prevents oxidation."},
+    ],
+    whenStop:"Minimum 6 months. After Day 80–85 bloodwork: if TG has dropped to <100 and LDL is controlled, you can taper to 1 cap daily. Discuss with cardiologist post-Hard 75 results.",
+    stopCol:"var(--blue)",
+    effects:[
+      {s:"Fishy burps / aftertaste",c:"var(--amber)",d:"Always take with food. Refrigerate. Use enteric-coated caps if it persists."},
+      {s:"Loose stools in first 1–2 weeks",c:"var(--amber)",d:"Normal adjustment. Reduces within 5–7 days."},
+      {s:"Unusual bruising",c:"var(--red)",d:"Blood-thinning effect at high doses. At 2g/day you're safe — but stop and check if bruising appears."},
+    ],
+    note:"At 2g/day you're well within the safe range. If you're ever prescribed blood thinners (aspirin, warfarin, clopidogrel), mention omega-3 to your doctor."
+  },
+  {
+    id:"mag",
+    icon:"🌙",
+    name:"Magnesium Glycinate",
+    tag:"OTC — ORDER NOW",
+    tagcol:"var(--amber)",
+    rx:"Zenith Nutrition Magnesium Glycinate 400mg — Amazon India, ~₹800–1000 / 60 caps\nNow Foods Magnesium Glycinate — iHerb or Amazon, slightly better quality\nDo NOT buy magnesium oxide — cheap, causes diarrhea, poor absorption.",
+    price:"~₹800–1000 / month",
+    howSection:[
+      {t:"Dose",v:"1 capsule (300–400mg) daily."},
+      {t:"Timing",v:"30–45 minutes before sleep. Not in the morning — causes drowsiness."},
+      {t:"Form matters",v:"Glycinate only. Not oxide, not citrate. Glycinate = best absorption + gentlest on gut."},
+    ],
+    whenStop:"Continue through all 75 days minimum. After that, optional. Try stopping after 3 months and see if sleep quality or muscle recovery changes. Many people keep it permanently — it's safe long-term.",
+    stopCol:"var(--green)",
+    effects:[
+      {s:"Loose stools or diarrhea",c:"var(--amber)",d:"Likely wrong form (oxide) or too much. Drop to half cap. Glycinate is the gentlest but still possible at high doses."},
+      {s:"Excessive morning grogginess",c:"var(--amber)",d:"Take earlier in evening, not right before bed. Give 60–90 min gap."},
+      {s:"Muscle weakness",c:"var(--red)",d:"Rare. Excess magnesium — stop and assess."},
+    ],
+    note:"Magnesium is one of the most deficient minerals in modern diets. It directly supports muscle recovery, deep sleep, and cortisol regulation — all critical during Hard 75."
+  },
+];
+
+function rSupps(){
+  var el=document.getElementById("s-supps");
+  var html='';
+
+  // Timing overview card
+  html+='<div class="stitle">DAILY TIMING GUIDE</div>';
+  html+='<div class="card" style="padding:0;overflow:hidden">';
+  var times=[
+    {t:"6:00 AM",icon:"💊",s:"Thyronorm 75mcg",note:"EMPTY STOMACH — nothing for 45 min after",col:"var(--lime)"},
+    {t:"7:00 AM",icon:"🏋️",s:"(no supplements)",note:"Workout — fasted",col:"var(--muted)"},
+    {t:"11:00 AM",icon:"🔴",s:"B12 Mecobalamin",note:"With break-fast meal",col:"var(--red)"},
+    {t:"1:30 PM",icon:"🐟",s:"Omega-3 × 2 caps",note:"With lunch",col:"var(--blue)"},
+    {t:"Weekly",icon:"☀️",s:"Calcirol D3 sachet + K2",note:"With heaviest meal that day",col:"var(--amber)"},
+    {t:"Bedtime",icon:"🌙",s:"Magnesium Glycinate",note:"30–45 min before sleep",col:"var(--muted)"},
+  ];
+  times.forEach(function(row,i){
+    html+='<div style="display:flex;align-items:center;gap:14px;padding:14px 18px;'+(i>0?"border-top:1px solid var(--border)":"")+'">';
+    html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:'+row.col+';min-width:54px;flex-shrink:0">'+row.t+'</div>';
+    html+='<div style="font-size:18px;flex-shrink:0">'+row.icon+'</div>';
+    html+='<div><div style="font-size:13px;font-weight:600;color:#f0efeb">'+row.s+'</div>';
+    html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--muted);margin-top:2px">'+row.note+'</div></div>';
+    html+='</div>';
+  });
+  html+='</div>';
+
+  // Order list
+  html+='<div class="stitle" style="margin-top:4px">ORDER LIST</div>';
+  html+='<div class="card">';
+  html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--muted);margin-bottom:14px;letter-spacing:1.5px">WHAT TO BUY — ESTIMATED ₹1,900–2,300/MONTH</div>';
+  var orders=[
+    {n:"Calcirol 60,000 IU sachets",sub:"Cadila — any pharmacy",p:"~₹30/sachet × 4/month",c:"var(--amber)"},
+    {n:"MenaQ7 K2-MK7 100mcg",sub:"Zenith Nutrition — Amazon India",p:"~₹650 / 60 caps",c:"var(--amber)"},
+    {n:"Mecobalamin 500mcg",sub:"Sun Pharma — any pharmacy (Mecobalamin / Nervup OD)",p:"~₹90 / 10 tabs",c:"var(--red)"},
+    {n:"Algae DHA 200mg",sub:"Zenith Nutrition — Amazon India (preferred over flaxseed)",p:"~₹1,000 / 60 caps",c:"var(--blue)"},
+    {n:"Magnesium Glycinate 400mg",sub:"Zenith Nutrition or Now Foods — Amazon / iHerb",p:"~₹900 / 60 caps",c:"var(--muted)"},
+  ];
+  orders.forEach(function(o,i){
+    html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:11px 0;'+(i>0?"border-top:1px solid var(--border)":"")+'">';
+    html+='<div style="display:flex;gap:10px;align-items:flex-start"><div style="width:7px;height:7px;border-radius:50%;background:'+o.c+';margin-top:5px;flex-shrink:0"></div>';
+    html+='<div><div style="font-size:13px;font-weight:600">'+o.n+'</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--muted);margin-top:2px">'+o.sub+'</div></div></div>';
+    html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:'+o.c+';text-align:right;flex-shrink:0;padding-top:3px">'+o.p+'</div>';
+    html+='</div>';
+  });
+  html+='</div>';
+
+  // Individual supplement detail cards
+  html+='<div class="stitle" style="margin-top:4px">FULL DETAILS</div>';
+  SUPPDETAIL.forEach(function(s){
+    html+='<div class="card" style="margin-bottom:12px">';
+    // Header
+    html+='<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:16px">';
+    html+='<div style="display:flex;gap:12px;align-items:center">';
+    html+='<div style="font-size:28px;line-height:1">'+s.icon+'</div>';
+    html+='<div><div style="font-family:\'Syne\',sans-serif;font-size:17px;font-weight:800;letter-spacing:-0.3px">'+s.name+'</div>';
+    html+='<span class="pill" style="background:'+s.tagcol+'18;color:'+s.tagcol+';margin-top:5px;display:inline-flex">'+s.tag+'</span></div>';
+    html+='</div></div>';
+
+    // How to take
+    html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--lime);letter-spacing:2px;margin-bottom:10px">HOW TO TAKE</div>';
+    s.howSection.forEach(function(row){
+      html+='<div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">';
+      html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:var(--muted);min-width:80px;flex-shrink:0">'+row.t+'</div>';
+      html+='<div style="font-size:12px;color:#ccc;line-height:1.55">'+row.v+'</div></div>';
+    });
+
+    // Buy
+    html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--amber);letter-spacing:2px;margin-top:16px;margin-bottom:8px">WHERE TO BUY</div>';
+    html+='<div style="font-size:12px;color:#888;white-space:pre-line;line-height:1.7">'+s.rx+'</div>';
+    if(s.price)html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:var(--lime);margin-top:6px">'+s.price+'</div>';
+
+    // When to stop
+    html+='<div style="background:var(--surface2);border-radius:12px;padding:12px;margin-top:16px">';
+    html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:'+s.stopCol+';letter-spacing:2px;margin-bottom:6px">WHEN TO STOP</div>';
+    html+='<div style="font-size:12px;color:#aaa;line-height:1.6">'+s.whenStop+'</div>';
+    html+='</div>';
+
+    // Side effects
+    html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--red);letter-spacing:2px;margin-top:16px;margin-bottom:10px">SIDE EFFECTS — RED FLAGS</div>';
+    s.effects.forEach(function(ef){
+      html+='<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">';
+      html+='<div style="width:7px;height:7px;border-radius:50%;background:'+ef.c+';margin-top:5px;flex-shrink:0"></div>';
+      html+='<div><div style="font-size:13px;font-weight:600;color:'+ef.c+'">'+ef.s+'</div>';
+      html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:var(--muted);margin-top:2px;line-height:1.5">'+ef.d+'</div></div>';
+      html+='</div>';
+    });
+
+    // Note
+    if(s.note){
+      html+='<div style="background:var(--lime-dim);border:1px solid rgba(200,255,0,0.15);border-radius:12px;padding:12px;margin-top:16px">';
+      html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--lime);letter-spacing:2px;margin-bottom:6px">NOTE</div>';
+      html+='<div style="font-size:12px;color:#aaa;line-height:1.6">'+s.note+'</div>';
+      html+='</div>';
+    }
+    html+='</div>';
+  });
+
+  // Doctor warning
+  html+='<div class="wbox" style="margin-top:4px">';
+  html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--red);letter-spacing:2px;margin-bottom:8px">⚠ DOCTOR NOTE</div>';
+  html+='<div style="font-size:12px;color:#ddd;line-height:1.7">Show this supplement list to your endocrinologist at your next visit. Thyronorm has known interactions with calcium — you\'re not on a calcium supplement, but mention D3 + K2 context. The endocrinologist visit is Priority #1 — book it before Day 10.</div>';
+  html+='</div>';
+
+  el.innerHTML=html;
+}
+
+function rSkin(){
+  var el=document.getElementById("s-skin");
+  var html='';
+
+  // Root cause explainer
+  html+='<div class="stitle">THE ROOT CAUSE</div>';
+  html+='<div class="bbox">';
+  html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--blue);letter-spacing:2px;margin-bottom:10px">WHY YOUR SKIN IS REACTING</div>';
+  html+='<div style="font-size:13px;color:#ddd;line-height:1.8">';
+  html+='Think of your immune system as a <b style="color:#fff">security guard</b> and your thyroid as the <b style="color:#fff">control room</b> that keeps him calm and focused.<br/><br/>';
+  html+='When your thyroid went severely underactive <span style="color:var(--red)">(TSH 16.26)</span>, the control room went offline. The security guard got confused and started <b style="color:#fff">attacking your own skin and hair follicles</b> — thinking they were threats. That\'s Lichen Planus.<br/><br/>';
+  html+='The elevated eosinophils <span style="color:var(--amber)">(6.9%)</span> are the same story — immune foot soldiers on chronic high alert with no proper instructions.<br/><br/>';
+  html+='<b style="color:var(--lime)">The fix:</b> Get TSH to 1–2.5 consistently → control room back online → immune system calms → LP flares reduce over 3–6 months. Hard 75 + correct Thyronorm timing is your best long-term skin treatment.';
+  html+='</div></div>';
+
+  // Viral test results — all clear
+  html+='<div class="stitle" style="margin-top:4px">VIRAL TRIGGER SCREEN — SEP 2025</div>';
+  html+='<div class="card">';
+  html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--muted);letter-spacing:1.5px;margin-bottom:14px">ORDERED BY DR NARESH — ALL CLEAR</div>';
+  var sti=[
+    {t:"Anti-HCV (Hep C)",r:"Non-Reactive",c:"var(--green)",n:"Hepatitis C ruled out as LP trigger — clean."},
+    {t:"HBsAg (Hep B)",r:"Non-Reactive",c:"var(--green)",n:"Hepatitis B surface antigen — negative."},
+    {t:"HIV I & II",r:"Negative",c:"var(--green)",n:"Final result negative by Line Membrane Chromatography."},
+    {t:"RPR (Syphilis)",r:"Non-Reactive",c:"var(--green)",n:"Syphilis screen — clean."},
+    {t:"HbA1c",r:"5.50%",c:"var(--amber)",n:"Non-diabetic ✓ but upper edge of normal. Hard 75 must prevent crossing 5.7%."},
+  ];
+  sti.forEach(function(s,i){
+    html+='<div style="display:flex;align-items:flex-start;gap:12px;padding:11px 0;'+(i>0?"border-top:1px solid var(--border)":"")+'">';
+    html+='<div style="flex:1"><div style="font-size:13px;font-weight:600">'+s.t+'</div>';
+    html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--muted);margin-top:3px;line-height:1.5">'+s.n+'</div></div>';
+    html+='<span class="pill" style="background:'+s.c+'18;color:'+s.c+';flex-shrink:0">'+s.r+'</span>';
+    html+='</div>';
+  });
+  html+='</div>';
+  html+='<div class="ibox"><div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--green);letter-spacing:2px;margin-bottom:6px">CONCLUSION</div>';
+  html+='<div style="font-size:12px;color:#aaa;line-height:1.6">Zero infectious or viral trigger. LP is <b style="color:#fff">purely autoimmune</b> — driven by the thyroid-immune connection. No separate infection to treat.</div></div>';
+
+  // Prescription timeline
+  html+='<div class="stitle">PRESCRIPTION HISTORY — DR NARESH</div>';
+  var rxs=[
+    {
+      date:"22 Feb 2023",dx:"Intertrigo",col:"var(--amber)",
+      meds:[
+        {n:"Onabet 50gm Powder",m:"Sertaconazole 1gm",use:"Antifungal — skin fold infection"},
+        {n:"Tacroz Forte 10gm Ointment",m:"Tacrolimus 0.1%",use:"Anti-inflammatory — calms immune attack"},
+      ]
+    },
+    {
+      date:"2 Jun 2023",dx:"(Scalp/Skin)",col:"var(--amber)",
+      meds:[
+        {n:"Keraglo AD Shampoo 75ml",m:"Ketoconazole 2%",use:"Antifungal scalp shampoo"},
+        {n:"Momate 30ml Lotion",m:"Mometasone furoate 0.1%",use:"Steroid — reduces scalp inflammation"},
+        {n:"Fexova 180mg Tablet",m:"Fexofenadine 180mg",use:"Antihistamine — 1 tablet after dinner for itch"},
+      ]
+    },
+    {
+      date:"2 Sep 2023",dx:"(Skincare + Scalp)",col:"var(--muted)",
+      meds:[
+        {n:"Regen Night Serum 50ml",m:"—",use:"Repair + collagen — apply nightly"},
+        {n:"Truderma Vitamin C Serum 20ml",m:"—",use:"Brightening, antioxidant — apply morning"},
+        {n:"Bioderma Sebium Gel 100ml",m:"—",use:"Oil-control face wash for oily/acne-prone skin"},
+        {n:"Lashield Sunscreen SPF 40",m:"—",use:"Mandatory daily — LP skin hyperpigments in UV"},
+        {n:"Sebowash Shampoo 100ml",m:"Fluocinolone 0.1%",use:"Steroid shampoo — active scalp flares"},
+      ]
+    },
+    {
+      date:"14 Dec 2023",dx:"Intertrigo",col:"var(--amber)",
+      meds:[
+        {n:"Lashield Sunscreen SPF 40",m:"—",use:"Daily — continued from Sep"},
+        {n:"Bioderma Node DS+ Shampooing",m:"—",use:"Anti-dandruff scalp maintenance"},
+        {n:"Dosetil 30ml Lotion",m:"Desonide 0.05%",use:"Mild steroid — safe for sensitive areas"},
+      ]
+    },
+    {
+      date:"23 Jan 2024",dx:"(Folliculitis + Skin)",col:"var(--red)",
+      meds:[
+        {n:"Lashield Sunscreen SPF 40",m:"—",use:"Daily — every prescription now"},
+        {n:"Microdox-LBX 100mg Capsule",m:"Doxycycline",use:"Antibiotic — oral, after dinner daily × 30 days"},
+        {n:"Bioderma Node Shampoo",m:"—",use:"Scalp maintenance"},
+        {n:"Tacroz Forte 10gm Ointment",m:"Tacrolimus 0.1%",use:"4th appearance — core maintenance cream"},
+      ]
+    },
+    {
+      date:"12 Mar 2024",dx:"Chronic Folliculitis",col:"var(--red)",
+      meds:[
+        {n:"Faceguard Sunscreen Gel",m:"—",use:"Daily SPF — gel formula for oily skin"},
+        {n:"Minym ER 65mg Tablet",m:"Minocycline 65mg",use:"Antibiotic — after dinner daily × 3 weeks"},
+        {n:"Bioderma Node Shampoo",m:"—",use:"Scalp maintenance"},
+        {n:"Tacroz Forte 10gm Ointment",m:"Tacrolimus 0.1%",use:"5th appearance — now a permanent fixture"},
+      ]
+    },
+    {
+      date:"9 Apr 2024",dx:"Chronic Folliculitis",col:"var(--red)",
+      meds:[
+        {n:"Faceguard Sunscreen Gel",m:"—",use:"Daily SPF"},
+        {n:"Minym ER 65mg Tablet",m:"Minocycline 65mg",use:"Antibiotic — tapered to ALTERNATE DAY × 3 weeks"},
+        {n:"Bioderma Node Shampoo",m:"—",use:"Scalp maintenance"},
+        {n:"Tacroz Forte 10gm Ointment",m:"Tacrolimus 0.1%",use:"6th appearance — tapering antibiotic, keeping Tacroz"},
+      ]
+    },
+    {
+      date:"8 Sep 2025",dx:"LICHEN PLANUS",col:"var(--red)",
+      meds:[
+        {n:"Halovate 30gm Cream",m:"Halobetasol — STRONGEST STEROID",use:"⚠ Most potent topical steroid. Severe flare only. Do not self-use."},
+        {n:"Tacroz Forte 10gm Ointment",m:"Tacrolimus 0.1%",use:"7th appearance — follow up after Halovate"},
+        {n:"Tests: HBSAG + Anti-HCV",m:"Both Non-Reactive ✅",use:"Viral triggers ruled out — purely autoimmune LP confirmed"},
+      ]
+    },
+    {
+      date:"24 Sep 2025",dx:"LICHEN PLANUS",col:"var(--red)",
+      meds:[
+        {n:"Momate 20gm Cream",m:"Mometasone furoate 0.1%",use:"Medium steroid — body flares"},
+        {n:"Dosetil Cream 15g",m:"Desonide 0.05%",use:"Mild steroid — sensitive areas and face"},
+        {n:"Tacroz Forte 10gm Ointment",m:"Tacrolimus 0.1%",use:"8th appearance — step-down from Halovate"},
+        {n:"Procalp Hair Loss Prevention Shampoo",m:"—",use:"Scalp LP (Lichen Planopilaris) — hair loss prevention"},
+      ]
+    },
+  ];
+  rxs.forEach(function(rx){
+    html+='<div class="csm" style="margin-bottom:8px">';
+    html+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">';
+    html+='<span class="pill" style="background:'+rx.col+'18;color:'+rx.col+'">'+rx.date+'</span>';
+    if(rx.dx)html+='<span style="font-size:12px;font-weight:700;color:'+rx.col+'">'+rx.dx+'</span>';
+    html+='</div>';
+    rx.meds.forEach(function(med,i){
+      html+='<div style="padding:8px 0;'+(i>0?"border-top:1px solid var(--border)":"")+'">';
+      html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">';
+      html+='<div style="font-size:13px;font-weight:600;flex:1">'+med.n+'</div>';
+      if(med.m&&med.m!=="—")html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:var(--muted);flex-shrink:0;text-align:right;padding-top:2px">'+med.m+'</div>';
+      html+='</div>';
+      html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:var(--muted);margin-top:3px">'+med.use+'</div>';
+      html+='</div>';
+    });
+    html+='</div>';
+  });
+
+  // Current treatment guide
+  html+='<div class="stitle" style="margin-top:4px">FLARE-UP TREATMENT GUIDE</div>';
+  html+='<div class="wbox"><div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--red);letter-spacing:2px;margin-bottom:6px">⚠ HALOVATE — DO NOT SELF-USE</div>';
+  html+='<div style="font-size:12px;color:#ddd">Halobetasol is the strongest steroid in your entire prescription history. Using it without a doctor\'s instruction causes skin thinning, stretch marks, and rebound flares worse than the original. Leave it for doctor-supervised severe flares only.</div></div>';
+
+  var skinProtocol=[
+    {
+      title:"MILD SKIN REDNESS / ITCH",
+      col:"var(--amber)",
+      steps:[
+        {rx:"Dosetil Cream (Desonide 0.05%)",how:"Apply once daily to the inflamed patch. Safe for face and sensitive areas. Max 2 weeks continuously on same spot."},
+      ]
+    },
+    {
+      title:"MODERATE BODY FLARE",
+      col:"var(--red)",
+      steps:[
+        {rx:"Momate Cream (Mometasone 0.1%)",how:"Apply once daily to body only — not face. Max 2–3 weeks continuously. Then step down."},
+        {rx:"→ After 1 week: switch to Tacroz Forte",how:"Step down from steroid to Tacroz to maintain and prevent rebound."},
+      ]
+    },
+    {
+      title:"MAINTENANCE + FACE (DAILY)",
+      col:"var(--lime)",
+      steps:[
+        {rx:"Tacroz Forte Ointment (Tacrolimus 0.1%)",how:"Not a steroid — calms the immune attack directly. Safe for face long-term. Apply to patches after steroid phase, or use as ongoing maintenance. This is in every single prescription — your doctor's most trusted tool."},
+      ]
+    },
+    {
+      title:"ACTIVE SCALP FLARE",
+      col:"var(--blue)",
+      steps:[
+        {rx:"Sebowash Shampoo (Fluocinolone 0.1%)",how:"Apply, leave 5 minutes, rinse. Twice a week only — not daily."},
+        {rx:"After washing: Tacroz Forte on patches",how:"Apply directly to affected scalp areas. Critical — scalp LP causes permanent scarring hair loss if inflammation isn't stopped between flares."},
+      ]
+    },
+    {
+      title:"DAILY SCALP MAINTENANCE",
+      col:"var(--muted)",
+      steps:[
+        {rx:"Procalp Shampoo",how:"Hair loss prevention specifically for LP. Use 2–3×/week as base shampoo."},
+        {rx:"Bioderma Node Shampoo",how:"Use on non-flare days. Keeps scalp clean and sebaceous balance correct."},
+      ]
+    },
+    {
+      title:"EVERY SINGLE MORNING — NON-NEGOTIABLE",
+      col:"var(--lime)",
+      steps:[
+        {rx:"Lashield SPF 40 (or Faceguard Gel)",how:"LP-affected skin is hypersensitive to UV and hyperpigments badly without protection. In every prescription from Sep 2023 onward — your doctor insisted on this. Apply before stepping out."},
+      ]
+    },
+  ];
+
+  skinProtocol.forEach(function(section){
+    html+='<div class="csm" style="margin-bottom:8px">';
+    html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:'+section.col+';letter-spacing:2px;margin-bottom:12px">'+section.title+'</div>';
+    section.steps.forEach(function(s,i){
+      html+='<div style="padding:8px 0;'+(i>0?"border-top:1px solid var(--border)":"")+'">';
+      html+='<div style="font-size:13px;font-weight:600;color:#f0efeb;margin-bottom:4px">'+s.rx+'</div>';
+      html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:var(--muted);line-height:1.6">'+s.how+'</div>';
+      html+='</div>';
+    });
+    html+='</div>';
+  });
+
+  // Quick reference table
+  html+='<div class="stitle" style="margin-top:4px">QUICK REFERENCE</div>';
+  html+='<div class="card" style="padding:0;overflow:hidden">';
+  var qr=[
+    {s:"Mild redness / itch",rx:"Dosetil Cream",c:"var(--amber)"},
+    {s:"Moderate body flare",rx:"Momate Cream (1 week max)",c:"var(--red)"},
+    {s:"After steroid / face / maintenance",rx:"Tacroz Forte",c:"var(--lime)"},
+    {s:"Active scalp itch / scaling",rx:"Sebowash 2× per week",c:"var(--blue)"},
+    {s:"Scalp LP maintenance",rx:"Tacroz on patches",c:"var(--blue)"},
+    {s:"Daily scalp care",rx:"Procalp + Bioderma Node",c:"var(--muted)"},
+    {s:"Every single morning",rx:"Lashield SPF 40",c:"var(--lime)"},
+  ];
+  qr.forEach(function(r,i){
+    html+='<div style="display:flex;align-items:center;gap:10px;padding:12px 18px;'+(i>0?"border-top:1px solid var(--border)":"")+'">';
+    html+='<div style="font-size:12px;color:#888;flex:1">'+r.s+'</div>';
+    html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:'+r.c+';text-align:right;flex-shrink:0;max-width:140px">'+r.rx+'</div>';
+    html+='</div>';
+  });
+  html+='</div>';
+
+  // Thyroid-skin connection reminder
+  html+='<div class="ibox" style="margin-top:4px">';
+  html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--green);letter-spacing:2px;margin-bottom:8px">THE MOST IMPORTANT SKIN TREATMENT</div>';
+  html+='<div style="font-size:13px;color:#ddd;line-height:1.7">Getting your TSH to <b style="color:var(--lime)">1.0–2.5 and keeping it there</b> is more powerful than any cream. Every cream manages the symptom. Thyroid optimization removes the cause. Hard 75 + correct Thyronorm timing at 6 AM = your best dermatology appointment.</div>';
+  html+='</div>';
+
+  el.innerHTML=html;
+}
+
 function switchTab(t){
   curTab=t;
   document.querySelectorAll(".tab").forEach(function(b){b.classList.toggle("on",b.dataset.t===t)});
@@ -584,6 +1043,8 @@ function switchTab(t){
   if(t==="today")rToday();
   else if(t==="tracker")rTracker();
   else if(t==="analysis"){rAnalysis();setTimeout(function(){drawChart(curMK)},60)}
+  else if(t==="skin")rSkin();
+  else if(t==="supps")rSupps();
   else if(t==="protocol")rProtocol();
   else if(t==="bloodwork")rBloodwork();
   window.scrollTo({top:0,behavior:"smooth"});
